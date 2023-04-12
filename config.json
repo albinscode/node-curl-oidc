@@ -1,0 +1,10 @@
+
+{
+    "user": "dwho",
+    "password": "dwho",
+    "url": "https://auth.linshare.local/oauth2",
+    "redirectUri": "https://user.linshare.local/oidc/callback",
+    "clientId": "linshare",
+    "clientSecret": "linshare",
+    "scopes": "openid mail"
+}
