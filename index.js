@@ -4,6 +4,7 @@ const axiosConfig = {
   headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      // 'Cookie': 'lemonldap=5815c7b378e8bed391c94af64a05b973ee683eaa1c02f9162dc27a1c237fe507',
       // 'Access-Control-Allow-Origin': "*",
       // 'Access-Control-Expose-Headers': 'Access-Token, Uid',
   }
@@ -54,18 +55,34 @@ async function run() {
 // la consommation pur API (backend sans frontend)
 // cf lldap : https://lemonldap-ng.org/documentation/2.0/idpopenidconnect.html#resource-owner-password-grant
 // il faut autoriser le password grant avec : "Clients OIDC / mon_client / options / sécurité / autoriser le password grant"
-function passwordGrantRun() {
+async function passwordGrantRun() {
+    try {
 
-    const data = `'grant_type=password&username=${config.user}&password=${config.password}&client_id=${config.clientId}&client_secret=${config.clientSecret}&scope=${config.scopes}'`
-    console.log(`curl -d ${data} -H 'Content-Type: application/x-www-form-urlencoded' -X POST ${config.url}/token`)
+        // const data = `'grant_type=password&username=${config.user}&password=${config.password}&client_id=${config.clientId}&client_secret=${config.clientSecret}&scope=${config.scopes}'`
+        const data = `grant_type=password&username=${config.user}&password=${config.password}&client_id=${config.clientId}&scope=${config.scopes}`
+        console.log(`curl -d '${data}' -H 'Content-Type: application/x-www-form-urlencoded' -X POST ${config.url}/token`)
 
-    // on passe alors le access token à l'application
-    // curl \
-// -H "Authorization: Bearer
-// c317ac0dd5393d0c908fc32d34d13c07951c3facc54c30a85faf7878fdc8b3fc" \
-// -H "Content-Type: application/json" \
-// -H "Accept: application/json" \
-// -X GET https://annuaire-recette.anah.fr/v2/servicesTypes
+        let result = await axios.post(`${config.url}/token?${data}`, {
+        }, axiosConfig)
+        console.log(result.data)
+
+        // on passe alors le access token à l'application
+        console.log(`curl -H 'Authorization: Bearer ${result.data.access_token}' -H 'Content-Type: application/json' -H 'Accept: application/json' -X GET ${config.applicationServiceTest}`)
+        let result2 = await axios.get(`${config.applicationServiceTest}`,
+        {
+            headers: {
+                ...axiosConfig.headers,
+                Authorization: `Bearer ${result.data.access_token}`,
+            }
+        })
+        console.log(result2.data)
+
+    }
+    catch (e) {
+        console.log(e.config)
+        console.log(e.response.status)
+        console.log(e.response.statusText)
+    }
 }
 
 passwordGrantRun()
